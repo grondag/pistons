@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "pistons-hd",
+  "version": "${version}",
+  "name": "Pistons HD",
+  "description": "Heavy-duty pistons for pushing more blocks. They look cool, too.",
+  "authors": [
+    "Grondag"
+  ],
+  "contact": {
+    "homepage": "https://minecraft.curseforge.com/projects/trees-do-not-float",
+    "issues": "https://github.com/grondag/trees-dont-float/issues"
+  },
+  "license": "Apache-2.0",
+  "icon": "assets/pistons/tdnf_icon.png",
+  
+  "environment": "*",
+  "entrypoints": {
+    "main": [ "grondag.pistons.Pistons" ],
+    "client": [ "grondag.pistons.client.ClientInitializer" ],
+    "modmenu": [ "grondag.pistons.client.ModMenuHelper" ]
+  },
+  
+  "mixins": [
+    "pistons.server.json"
+  ],
+  
+  "depends": {
+    "fabricloader": ">=0.4.8",
+    "fabric": "*"
+  },
+  "custom": {
+    "modmenu:api": false,
+    "modmenu:clientsideOnly": false
+  }
+}

@@ -14,7 +14,7 @@
  * the License.
  ******************************************************************************/
 
-package grondag.tdnf;
+package grondag.pistons;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -161,7 +161,7 @@ public class Configurator {
             config = GSON.fromJson(regularized, ConfigData.class);
         } catch (Exception e) {
             e.printStackTrace();
-            TreesDoNotFloat.LOG.error("Unable to load config. Using default values.");
+            Pistons.LOG.error("Unable to load config. Using default values.");
         }
 
         // BLOCKS
@@ -252,7 +252,7 @@ public class Configurator {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            TreesDoNotFloat.LOG.error("Unable to save config.");
+            Pistons.LOG.error("Unable to save config.");
             return;
         }
     }

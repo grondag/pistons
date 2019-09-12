@@ -14,16 +14,16 @@
  * the License.
  ******************************************************************************/
 
-package grondag.tdnf.client;
+package grondag.pistons.client;
 
-import static grondag.tdnf.Configurator.*;
+import static grondag.pistons.Configurator.*;
 
-import static grondag.tdnf.Configurator.stackDrops;
+import static grondag.pistons.Configurator.stackDrops;
 
 import java.util.Optional;
 
-import grondag.tdnf.Configurator;
-import grondag.tdnf.Configurator.FallCondition;
+import grondag.pistons.Configurator;
+import grondag.pistons.Configurator.FallCondition;
 import me.shedaniel.clothconfig2.gui.entries.BooleanListEntry;
 import me.shedaniel.clothconfig2.gui.entries.EnumListEntry;
 import me.shedaniel.clothconfig2.gui.entries.IntegerSliderEntry;

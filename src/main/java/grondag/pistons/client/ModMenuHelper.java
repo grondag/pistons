@@ -14,11 +14,11 @@
  * the License.
  ******************************************************************************/
 
-package grondag.tdnf.client;
+package grondag.pistons.client;
 
 import java.util.function.Function;
 
-import grondag.tdnf.TreesDoNotFloat;
+import grondag.pistons.Pistons;
 import io.github.prospector.modmenu.api.ModMenuApi;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -33,7 +33,7 @@ public class ModMenuHelper implements ModMenuApi {
 
     @Override
     public String getModId() {
-        return TreesDoNotFloat.MODID;
+        return Pistons.MODID;
     }
 
 }

@@ -1,0 +1,5 @@
+{
+    "variants": {
+        "": { "model": "pistons-hd:block/moving_piston" }
+    }
+}

@@ -14,21 +14,19 @@
  * the License.
  ******************************************************************************/
 
-package grondag.tdnf.client;
+package grondag.pistons.client;
 
-import grondag.tdnf.world.FallingLogEntity;
+import grondag.pistons.DoublePistonBlockEntity;
+import grondag.pistons.DoublePistonBlockEntityRenderer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
+import net.fabricmc.fabric.api.client.render.BlockEntityRendererRegistry;
 
 @Environment(EnvType.CLIENT)
 public class ClientInitializer implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        ClientSidePacketRegistry.INSTANCE.register(FallingLogEntity.IDENTIFIER, FallingLogNetworkHandler::accept);
-        EntityRendererRegistry.INSTANCE.register(FallingLogEntity.class,
-                (entityRenderDispatcher, context) -> new FallingLogEntityRenderer(entityRenderDispatcher));
+        BlockEntityRendererRegistry.INSTANCE.register(DoublePistonBlockEntity.class, new DoublePistonBlockEntityRenderer());
     }
 }

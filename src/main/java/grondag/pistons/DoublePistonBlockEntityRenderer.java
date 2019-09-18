@@ -22,64 +22,69 @@ import net.minecraft.world.World;
 
 @Environment(EnvType.CLIENT)
 public class DoublePistonBlockEntityRenderer extends BlockEntityRenderer<DoublePistonBlockEntity> {
-       private static BlockRenderManager manager;
-       
-       private static BlockRenderManager blockRenderManager() {
-           BlockRenderManager result = manager;
-           if(result == null) {
-               result = MinecraftClient.getInstance().getBlockRenderManager();
-               manager = result;
-           }
-           return result;
-       }
+    private static BlockRenderManager manager;
 
-   @Override
-    public void render(DoublePistonBlockEntity pistonBlockEntity_1, double double_1, double double_2, double double_3, float float_1, int int_1) {
-          BlockPos blockPos_1 = pistonBlockEntity_1.getPos().offset(pistonBlockEntity_1.method_11506().getOpposite());
-          BlockState blockState_1 = pistonBlockEntity_1.getPushedBlock();
-          if (!blockState_1.isAir() && pistonBlockEntity_1.getProgress(float_1) < 1.0F) {
-             Tessellator tessellator_1 = Tessellator.getInstance();
-             BufferBuilder bufferBuilder_1 = tessellator_1.getBufferBuilder();
-             this.bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX);
-             GuiLighting.disable();
-             GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-             GlStateManager.enableBlend();
-             GlStateManager.disableCull();
-             if (MinecraftClient.isAmbientOcclusionEnabled()) {
-                GlStateManager.shadeModel(7425);
-             } else {
-                GlStateManager.shadeModel(7424);
-             }
-
-             BlockModelRenderer.enableBrightnessCache();
-             bufferBuilder_1.begin(7, VertexFormats.POSITION_COLOR_UV_LMAP);
-             bufferBuilder_1.setOffset(double_1 - (double)blockPos_1.getX() + (double)pistonBlockEntity_1.getRenderOffsetX(float_1), double_2 - (double)blockPos_1.getY() + (double)pistonBlockEntity_1.getRenderOffsetY(float_1), double_3 - (double)blockPos_1.getZ() + (double)pistonBlockEntity_1.getRenderOffsetZ(float_1));
-             World world_1 = this.getWorld();
-             if (blockState_1.getBlock() == PistonBlocks.DOUBLE_PISTON_HEAD && pistonBlockEntity_1.getProgress(float_1) <= 4.0F) {
-                blockState_1 = (BlockState)blockState_1.with(DoublePistonHeadBlock.SHORT, true);
-                this.method_3575(blockPos_1, blockState_1, bufferBuilder_1, world_1, false);
-             } else if (pistonBlockEntity_1.isSource() && !pistonBlockEntity_1.isExtending()) {
-                PistonType pistonType_1 = blockState_1.getBlock() == PistonBlocks.STICKY_DOUBLE_PISTON ? PistonType.STICKY : PistonType.DEFAULT;
-                BlockState blockState_2 = (BlockState)((BlockState)PistonBlocks.DOUBLE_PISTON_HEAD.getDefaultState().with(DoublePistonHeadBlock.TYPE, pistonType_1)).with(DoublePistonHeadBlock.FACING, blockState_1.get(DoublePistonBlock.FACING));
-                blockState_2 = (BlockState)blockState_2.with(DoublePistonHeadBlock.SHORT, pistonBlockEntity_1.getProgress(float_1) >= 0.5F);
-                this.method_3575(blockPos_1, blockState_2, bufferBuilder_1, world_1, false);
-                BlockPos blockPos_2 = blockPos_1.offset(pistonBlockEntity_1.method_11506());
-                bufferBuilder_1.setOffset(double_1 - (double)blockPos_2.getX(), double_2 - (double)blockPos_2.getY(), double_3 - (double)blockPos_2.getZ());
-                blockState_1 = (BlockState)blockState_1.with(DoublePistonBlock.EXTENDED, true);
-                this.method_3575(blockPos_2, blockState_1, bufferBuilder_1, world_1, true);
-             } else {
-                this.method_3575(blockPos_1, blockState_1, bufferBuilder_1, world_1, false);
-             }
-             
-             bufferBuilder_1.setOffset(0.0D, 0.0D, 0.0D);
-             tessellator_1.draw();
-             BlockModelRenderer.disableBrightnessCache();
-             GuiLighting.enable();
-          }
-       }
-
-       private boolean method_3575(BlockPos blockPos_1, BlockState blockState_1, BufferBuilder bufferBuilder_1, World world_1, boolean boolean_1) {
-          final BlockRenderManager manager = blockRenderManager();
-           return manager.getModelRenderer().tesselate(world_1, manager.getModel(blockState_1), blockState_1, blockPos_1, bufferBuilder_1, boolean_1, new Random(), blockState_1.getRenderingSeed(blockPos_1));
-       }
+    private static BlockRenderManager blockRenderManager() {
+        BlockRenderManager result = manager;
+        if (result == null) {
+            result = MinecraftClient.getInstance().getBlockRenderManager();
+            manager = result;
+        }
+        return result;
     }
+
+    @Override
+    public void render(DoublePistonBlockEntity blockEntity, double x, double y, double z, float tickDelta, int int_1) {
+        final BlockPos pos = blockEntity.getPos().offset(blockEntity.moveDirection().getOpposite());
+        BlockState pushedState = blockEntity.getPushedBlock();
+        if (!pushedState.isAir() && blockEntity.getProgress(tickDelta) < 1.0F) {
+            final Tessellator tessellator = Tessellator.getInstance();
+            final BufferBuilder bufferBuilder = tessellator.getBufferBuilder();
+            bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX);
+            GuiLighting.disable();
+            GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+            GlStateManager.enableBlend();
+            GlStateManager.disableCull();
+            if (MinecraftClient.isAmbientOcclusionEnabled()) {
+                GlStateManager.shadeModel(7425);
+            } else {
+                GlStateManager.shadeModel(7424);
+            }
+
+            BlockModelRenderer.enableBrightnessCache();
+            bufferBuilder.begin(7, VertexFormats.POSITION_COLOR_UV_LMAP);
+            bufferBuilder.setOffset(x - pos.getX() + blockEntity.getRenderOffsetX(tickDelta), y - pos.getY() + blockEntity.getRenderOffsetY(tickDelta),
+                    z - pos.getZ() + blockEntity.getRenderOffsetZ(tickDelta));
+
+            final World world = this.getWorld();
+            if (pushedState.getBlock() == PistonBlocks.DOUBLE_PISTON_HEAD && blockEntity.getProgress(tickDelta) <= 4.0F) {
+                pushedState = pushedState.with(DoublePistonHeadBlock.SHORT, true);
+                renderPushed(pos, pushedState, bufferBuilder, world, false);
+            } else if (blockEntity.isSource() && !blockEntity.isExtending()) {
+                PistonType pistonType = pushedState.getBlock() == PistonBlocks.STICKY_DOUBLE_PISTON ? PistonType.STICKY : PistonType.DEFAULT;
+                BlockState renderstate = PistonBlocks.DOUBLE_PISTON_HEAD.getDefaultState().with(DoublePistonHeadBlock.TYPE, pistonType)
+                        .with(DoublePistonHeadBlock.FACING, pushedState.get(DoublePistonBlock.FACING));
+                renderstate = renderstate.with(DoublePistonHeadBlock.SHORT, blockEntity.getProgress(tickDelta) >= 0.5F);
+                renderPushed(pos, renderstate, bufferBuilder, world, false);
+
+                BlockPos pushPos = pos.offset(blockEntity.moveDirection());
+                bufferBuilder.setOffset(x - pushPos.getX(), y - pushPos.getY(), z - pushPos.getZ());
+                pushedState = pushedState.with(DoublePistonBlock.EXTENDED, true);
+                renderPushed(pushPos, pushedState, bufferBuilder, world, true);
+            } else {
+                this.renderPushed(pos, pushedState, bufferBuilder, world, false);
+            }
+
+            bufferBuilder.setOffset(0.0D, 0.0D, 0.0D);
+            tessellator.draw();
+            BlockModelRenderer.disableBrightnessCache();
+            GuiLighting.enable();
+        }
+    }
+
+    private boolean renderPushed(BlockPos pos, BlockState blockState, BufferBuilder bufferBuilder, World world, boolean cullFlag) {
+        final BlockRenderManager manager = blockRenderManager();
+        return manager.getModelRenderer().tesselate(world, manager.getModel(blockState), blockState, pos, bufferBuilder, cullFlag, new Random(),
+                blockState.getRenderingSeed(pos));
+    }
+}

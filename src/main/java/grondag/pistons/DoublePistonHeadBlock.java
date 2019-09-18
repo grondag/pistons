@@ -50,11 +50,12 @@ public class DoublePistonHeadBlock extends FacingBlock {
 
     public DoublePistonHeadBlock(Block.Settings block$Settings_1) {
         super(block$Settings_1);
-        this.setDefaultState((BlockState)((BlockState)((BlockState)((BlockState)this.stateFactory.getDefaultState()).with(FACING, Direction.NORTH)).with(TYPE, PistonType.DEFAULT)).with(SHORT, false));
+        this.setDefaultState((BlockState) ((BlockState) ((BlockState) ((BlockState) this.stateFactory.getDefaultState()).with(FACING, Direction.NORTH))
+                .with(TYPE, PistonType.DEFAULT)).with(SHORT, false));
     }
 
     private VoxelShape getHeadShape(BlockState blockState_1) {
-        switch((Direction)blockState_1.get(FACING)) {
+        switch ((Direction) blockState_1.get(FACING)) {
         case DOWN:
         default:
             return DOWN_HEAD_SHAPE;
@@ -82,8 +83,8 @@ public class DoublePistonHeadBlock extends FacingBlock {
     }
 
     private VoxelShape getArmShape(BlockState blockState_1) {
-        boolean boolean_1 = (Boolean)blockState_1.get(SHORT);
-        switch((Direction)blockState_1.get(FACING)) {
+        boolean boolean_1 = (Boolean) blockState_1.get(SHORT);
+        switch ((Direction) blockState_1.get(FACING)) {
         case DOWN:
         default:
             return boolean_1 ? SHORT_DOWN_ARM_SHAPE : DOWN_ARM_SHAPE;
@@ -103,7 +104,7 @@ public class DoublePistonHeadBlock extends FacingBlock {
     @Override
     public void onBreak(World world_1, BlockPos blockPos_1, BlockState blockState_1, PlayerEntity playerEntity_1) {
         if (!world_1.isClient && playerEntity_1.abilities.creativeMode) {
-            BlockPos blockPos_2 = blockPos_1.offset(((Direction)blockState_1.get(FACING)).getOpposite());
+            BlockPos blockPos_2 = blockPos_1.offset(((Direction) blockState_1.get(FACING)).getOpposite());
             Block block_1 = world_1.getBlockState(blockPos_2).getBlock();
             if (block_1 == PistonBlocks.DOUBLE_PISTON || block_1 == PistonBlocks.STICKY_DOUBLE_PISTON) {
                 world_1.clearBlockState(blockPos_2, false);
@@ -117,10 +118,11 @@ public class DoublePistonHeadBlock extends FacingBlock {
     public void onBlockRemoved(BlockState blockState_1, World world_1, BlockPos blockPos_1, BlockState blockState_2, boolean boolean_1) {
         if (blockState_1.getBlock() != blockState_2.getBlock()) {
             super.onBlockRemoved(blockState_1, world_1, blockPos_1, blockState_2, boolean_1);
-            Direction direction_1 = ((Direction)blockState_1.get(FACING)).getOpposite();
+            Direction direction_1 = ((Direction) blockState_1.get(FACING)).getOpposite();
             blockPos_1 = blockPos_1.offset(direction_1);
             BlockState blockState_3 = world_1.getBlockState(blockPos_1);
-            if ((blockState_3.getBlock() == PistonBlocks.DOUBLE_PISTON || blockState_3.getBlock() == PistonBlocks.STICKY_DOUBLE_PISTON) && (Boolean)blockState_3.get(DoublePistonBlock.EXTENDED)) {
+            if ((blockState_3.getBlock() == PistonBlocks.DOUBLE_PISTON || blockState_3.getBlock() == PistonBlocks.STICKY_DOUBLE_PISTON)
+                    && (Boolean) blockState_3.get(DoublePistonBlock.EXTENDED)) {
                 dropStacks(blockState_3, world_1, blockPos_1);
                 world_1.clearBlockState(blockPos_1, false);
             }
@@ -129,20 +131,22 @@ public class DoublePistonHeadBlock extends FacingBlock {
     }
 
     @Override
-    public BlockState getStateForNeighborUpdate(BlockState blockState_1, Direction direction_1, BlockState blockState_2, IWorld iWorld_1, BlockPos blockPos_1, BlockPos blockPos_2) {
-        return direction_1.getOpposite() == blockState_1.get(FACING) && !blockState_1.canPlaceAt(iWorld_1, blockPos_1) ? Blocks.AIR.getDefaultState() : super.getStateForNeighborUpdate(blockState_1, direction_1, blockState_2, iWorld_1, blockPos_1, blockPos_2);
+    public BlockState getStateForNeighborUpdate(BlockState blockState_1, Direction direction_1, BlockState blockState_2, IWorld iWorld_1, BlockPos blockPos_1,
+            BlockPos blockPos_2) {
+        return direction_1.getOpposite() == blockState_1.get(FACING) && !blockState_1.canPlaceAt(iWorld_1, blockPos_1) ? Blocks.AIR.getDefaultState()
+                : super.getStateForNeighborUpdate(blockState_1, direction_1, blockState_2, iWorld_1, blockPos_1, blockPos_2);
     }
 
     @Override
     public boolean canPlaceAt(BlockState blockState_1, ViewableWorld viewableWorld_1, BlockPos blockPos_1) {
-        Block block_1 = viewableWorld_1.getBlockState(blockPos_1.offset(((Direction)blockState_1.get(FACING)).getOpposite())).getBlock();
+        Block block_1 = viewableWorld_1.getBlockState(blockPos_1.offset(((Direction) blockState_1.get(FACING)).getOpposite())).getBlock();
         return block_1 == PistonBlocks.DOUBLE_PISTON || block_1 == PistonBlocks.STICKY_DOUBLE_PISTON || block_1 == PistonBlocks.MOVING_DOUBLE_PISTON;
     }
 
     @Override
     public void neighborUpdate(BlockState blockState_1, World world_1, BlockPos blockPos_1, Block block_1, BlockPos blockPos_2, boolean boolean_1) {
         if (blockState_1.canPlaceAt(world_1, blockPos_1)) {
-            BlockPos blockPos_3 = blockPos_1.offset(((Direction)blockState_1.get(FACING)).getOpposite());
+            BlockPos blockPos_3 = blockPos_1.offset(((Direction) blockState_1.get(FACING)).getOpposite());
             world_1.getBlockState(blockPos_3).neighborUpdate(world_1, blockPos_3, block_1, blockPos_2, false);
         }
 
@@ -156,12 +160,12 @@ public class DoublePistonHeadBlock extends FacingBlock {
 
     @Override
     public BlockState rotate(BlockState blockState_1, BlockRotation blockRotation_1) {
-        return (BlockState)blockState_1.with(FACING, blockRotation_1.rotate((Direction)blockState_1.get(FACING)));
+        return (BlockState) blockState_1.with(FACING, blockRotation_1.rotate((Direction) blockState_1.get(FACING)));
     }
 
     @Override
     public BlockState mirror(BlockState blockState_1, BlockMirror blockMirror_1) {
-        return blockState_1.rotate(blockMirror_1.getRotation((Direction)blockState_1.get(FACING)));
+        return blockState_1.rotate(blockMirror_1.getRotation((Direction) blockState_1.get(FACING)));
     }
 
     @Override

@@ -13,46 +13,54 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 public class DoublePistonHandler {
-    private final World world;
-    private final BlockPos posFrom;
-    private final boolean field_12247;
-    private final BlockPos posTo;
-    private final Direction direction;
+    private World world;
+    private BlockPos posFrom;
+    private boolean reverse;
+    private BlockPos posTo;
+    private Direction direction;
     private final List<BlockPos> movedBlocks = Lists.newArrayList();
     private final List<BlockPos> brokenBlocks = Lists.newArrayList();
-    private final Direction field_12248;
+    private Direction face;
 
-    public DoublePistonHandler(World world_1, BlockPos blockPos_1, Direction direction_1, boolean boolean_1) {
-        this.world = world_1;
-        this.posFrom = blockPos_1;
-        this.field_12248 = direction_1;
-        this.field_12247 = boolean_1;
-        if (boolean_1) {
-            this.direction = direction_1;
-            this.posTo = blockPos_1.offset(direction_1);
+    private DoublePistonHandler() {
+    };
+
+    private DoublePistonHandler prepare(World world, BlockPos pos, Direction face, boolean reverse) {
+        this.world = world;
+        this.posFrom = pos;
+        this.face = face;
+        this.reverse = reverse;
+        if (reverse) {
+            this.direction = face;
+            this.posTo = pos.offset(face);
         } else {
-            this.direction = direction_1.getOpposite();
-            this.posTo = blockPos_1.offset(direction_1, 2);
+            this.direction = face.getOpposite();
+            this.posTo = pos.offset(face, 2);
         }
-
+        movedBlocks.clear();
+        brokenBlocks.clear();
+        return this;
     }
 
     public boolean calculatePush() {
-        this.movedBlocks.clear();
-        this.brokenBlocks.clear();
-        BlockState blockState_1 = this.world.getBlockState(this.posTo);
-        if (!DoublePistonBlock.isMovable(blockState_1, this.world, this.posTo, this.direction, false, this.field_12248)) {
-            if (this.field_12247 && blockState_1.getPistonBehavior() == PistonBehavior.DESTROY) {
-                this.brokenBlocks.add(this.posTo);
+        final List<BlockPos> movedBlocks = this.movedBlocks;
+        final List<BlockPos> brokenBlocks = this.brokenBlocks;
+        movedBlocks.clear();
+        brokenBlocks.clear();
+        
+        BlockState blockState = world.getBlockState(posTo);
+        if (!DoublePistonBlock.isMovable(blockState, world, posTo, direction, false, face)) {
+            if (reverse && blockState.getPistonBehavior() == PistonBehavior.DESTROY) {
+                brokenBlocks.add(posTo);
                 return true;
             } else {
                 return false;
             }
-        } else if (!this.tryMove(this.posTo, this.direction)) {
+        } else if (!tryMove(posTo, direction)) {
             return false;
         } else {
-            for(int int_1 = 0; int_1 < this.movedBlocks.size(); ++int_1) {
-                BlockPos blockPos_1 = (BlockPos)this.movedBlocks.get(int_1);
+            for (int i = 0; i < movedBlocks.size(); ++i) {
+                BlockPos blockPos_1 = movedBlocks.get(i);
                 if (this.world.getBlockState(blockPos_1).getBlock() == Blocks.SLIME_BLOCK && !this.method_11538(blockPos_1)) {
                     return false;
                 }
@@ -62,32 +70,40 @@ public class DoublePistonHandler {
         }
     }
 
-    private boolean tryMove(BlockPos blockPos_1, Direction direction_1) {
-        BlockState blockState_1 = this.world.getBlockState(blockPos_1);
-        Block block_1 = blockState_1.getBlock();
-        if (blockState_1.isAir()) {
+    private boolean tryMove(BlockPos pos, Direction face) {
+        final List<BlockPos> movedBlocks = this.movedBlocks;
+        final List<BlockPos> brokenBlocks = this.brokenBlocks;
+        final World world = this.world;
+        final Direction direction = this.direction;
+        final BlockPos posFrom = this.posFrom;
+        
+        BlockState blockState = world.getBlockState(pos);
+        Block block = blockState.getBlock();
+        if (blockState.isAir()) {
             return true;
-        } else if (!DoublePistonBlock.isMovable(blockState_1, this.world, blockPos_1, this.direction, false, direction_1)) {
+        } else if (!DoublePistonBlock.isMovable(blockState, world, pos, direction, false, face)) {
             return true;
-        } else if (blockPos_1.equals(this.posFrom)) {
+        } else if (pos.equals(posFrom)) {
             return true;
-        } else if (this.movedBlocks.contains(blockPos_1)) {
+        } else if (movedBlocks.contains(pos)) {
             return true;
         } else {
-            int int_1 = 1;
-            if (int_1 + this.movedBlocks.size() > 12) {
+            int index = 1;
+            if (index + movedBlocks.size() > 12) {
                 return false;
             } else {
-                while(block_1 == Blocks.SLIME_BLOCK) {
-                    BlockPos blockPos_2 = blockPos_1.offset(this.direction.getOpposite(), int_1);
-                    blockState_1 = this.world.getBlockState(blockPos_2);
-                    block_1 = blockState_1.getBlock();
-                    if (blockState_1.isAir() || !DoublePistonBlock.isMovable(blockState_1, this.world, blockPos_2, this.direction, false, this.direction.getOpposite()) || blockPos_2.equals(this.posFrom)) {
+                while (block == Blocks.SLIME_BLOCK) {
+                    final BlockPos oppositePos = pos.offset(direction.getOpposite(), index);
+                    blockState = world.getBlockState(oppositePos);
+                    block = blockState.getBlock();
+                    if (blockState.isAir()
+                            || !DoublePistonBlock.isMovable(blockState, world, oppositePos, direction, false, direction.getOpposite())
+                            || oppositePos.equals(posFrom)) {
                         break;
                     }
 
-                    ++int_1;
-                    if (int_1 + this.movedBlocks.size() > 12) {
+                    ++index;
+                    if (index + movedBlocks.size() > 12) {
                         return false;
                     }
                 }
@@ -95,22 +111,22 @@ public class DoublePistonHandler {
                 int int_2 = 0;
 
                 int int_4;
-                for(int_4 = int_1 - 1; int_4 >= 0; --int_4) {
-                    this.movedBlocks.add(blockPos_1.offset(this.direction.getOpposite(), int_4));
+                for (int_4 = index - 1; int_4 >= 0; --int_4) {
+                    movedBlocks.add(pos.offset(direction.getOpposite(), int_4));
                     ++int_2;
                 }
 
                 int_4 = 1;
 
-                while(true) {
-                    BlockPos blockPos_3 = blockPos_1.offset(this.direction, int_4);
-                    int int_5 = this.movedBlocks.indexOf(blockPos_3);
+                while (true) {
+                    BlockPos blockPos_3 = pos.offset(direction, int_4);
+                    int int_5 = movedBlocks.indexOf(blockPos_3);
                     if (int_5 > -1) {
-                        this.method_11539(int_2, int_5);
+                        method_11539(int_2, int_5);
 
-                        for(int int_6 = 0; int_6 <= int_5 + int_2; ++int_6) {
-                            BlockPos blockPos_4 = (BlockPos)this.movedBlocks.get(int_6);
-                            if (this.world.getBlockState(blockPos_4).getBlock() == Blocks.SLIME_BLOCK && !this.method_11538(blockPos_4)) {
+                        for (int int_6 = 0; int_6 <= int_5 + int_2; ++int_6) {
+                            BlockPos blockPos_4 = (BlockPos) movedBlocks.get(int_6);
+                            if (world.getBlockState(blockPos_4).getBlock() == Blocks.SLIME_BLOCK && !method_11538(blockPos_4)) {
                                 return false;
                             }
                         }
@@ -118,25 +134,26 @@ public class DoublePistonHandler {
                         return true;
                     }
 
-                    blockState_1 = this.world.getBlockState(blockPos_3);
-                    if (blockState_1.isAir()) {
+                    blockState = world.getBlockState(blockPos_3);
+                    if (blockState.isAir()) {
                         return true;
                     }
 
-                    if (!DoublePistonBlock.isMovable(blockState_1, this.world, blockPos_3, this.direction, true, this.direction) || blockPos_3.equals(this.posFrom)) {
+                    if (!DoublePistonBlock.isMovable(blockState, world, blockPos_3, direction, true, direction)
+                            || blockPos_3.equals(this.posFrom)) {
                         return false;
                     }
 
-                    if (blockState_1.getPistonBehavior() == PistonBehavior.DESTROY) {
-                        this.brokenBlocks.add(blockPos_3);
+                    if (blockState.getPistonBehavior() == PistonBehavior.DESTROY) {
+                        brokenBlocks.add(blockPos_3);
                         return true;
                     }
 
-                    if (this.movedBlocks.size() >= 12) {
+                    if (movedBlocks.size() >= 12) {
                         return false;
                     }
 
-                    this.movedBlocks.add(blockPos_3);
+                    movedBlocks.add(blockPos_3);
                     ++int_2;
                     ++int_4;
                 }
@@ -161,7 +178,7 @@ public class DoublePistonHandler {
         Direction[] var2 = Direction.values();
         int var3 = var2.length;
 
-        for(int var4 = 0; var4 < var3; ++var4) {
+        for (int var4 = 0; var4 < var3; ++var4) {
             Direction direction_1 = var2[var4];
             if (direction_1.getAxis() != this.direction.getAxis() && !this.tryMove(blockPos_1.offset(direction_1), direction_1)) {
                 return false;
@@ -177,5 +194,11 @@ public class DoublePistonHandler {
 
     public List<BlockPos> getBrokenBlocks() {
         return this.brokenBlocks;
+    }
+
+    private static ThreadLocal<DoublePistonHandler> POOL = ThreadLocal.withInitial(DoublePistonHandler::new);
+
+    public static DoublePistonHandler get(World world, BlockPos pos, Direction face, boolean reverse) {
+        return POOL.get().prepare(world, pos, face, reverse);
     }
 }

@@ -32,7 +32,7 @@ public class Pistons implements ModInitializer {
     public static final String MODID = "pistons-hd";
 
     public static final Logger LOG = LogManager.getLogger("pistons-hd");
-    
+
     private static ItemGroup itemGroup;
 
     @Override
@@ -44,20 +44,20 @@ public class Pistons implements ModInitializer {
                 .build();
         PistonBlocks.init();
     }
-    
+
     public static String idString(String path) {
         return MODID + ":" + path;
     }
-    
+
     public static Identifier id(String path) {
         return new Identifier(MODID, path);
     }
-    
+
     public static Block register(String idString, Block block) {
         Identifier id = id(idString);
         return Registry.BLOCK.add(id, block);
     }
-    
+
     public static Item registerItem(String idString, Block block) {
         Identifier id = id(idString);
         return Registry.ITEM.add(id, new BlockItem(block, new Item.Settings().maxCount(64).group(itemGroup)));
